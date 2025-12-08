@@ -55,10 +55,6 @@ def clean_json(raw):
     return raw.strip()
 
 def wrap_text_for_pdf(text, max_len=50):
-    """
-    Ensures no single word is longer than max_len.
-    Removes control characters and inserts breakable spaces.
-    """
     text = re.sub(r"[\x00-\x08\x0b-\x0c\x0e-\x1f]", "", text)
 
     def break_word(match):
