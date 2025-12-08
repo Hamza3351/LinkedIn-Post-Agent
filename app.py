@@ -3,9 +3,12 @@ import json
 import streamlit as st
 from groq import Groq
 from dotenv import load_dotenv
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib.units import inch
 from io import BytesIO
-from fpdf import FPDF
-import re
 
 load_dotenv()
 
@@ -54,19 +57,6 @@ def clean_json(raw):
             raw = raw.split("```")[0]
     return raw.strip()
 
-def wrap_text_for_pdf(text, max_len=50):
-    """
-    Ensures no single word is longer than max_len.
-    Removes control characters and inserts breakable spaces.
-    """
-    text = re.sub(r"[\x00-\x08\x0b-\x0c\x0e-\x1f]", "", text)
-
-    def break_word(match):
-        word = match.group(0)
-        return "\u200b".join([word[i:i+max_len] for i in range(0, len(word), max_len)])
-
-    return re.sub(r'\S{' + str(max_len+1) + r',}', break_word, text)
-
 def generate_posts(topic, tone, audience):
     user_prompt = f"""
     Topic: {topic}
@@ -102,37 +92,64 @@ def create_txt(data):
     return txt
 
 def create_pdf(data):
-    MAX_WIDTH = 180  
-    LEFT_MARGIN = 15
+    buffer = BytesIO()
+    pdf = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=40
+    )
 
-    pdf = FPDF()
-    pdf.set_auto_page_break(auto=True, margin=15)
-    pdf.add_page()
-    pdf.set_left_margin(LEFT_MARGIN)
-    pdf.set_font("Arial", size=12)
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        'TitleStyle',
+        parent=styles['Heading1'],
+        fontSize=16,
+        leading=20,
+        spaceAfter=12
+    )
+
+    section_style = ParagraphStyle(
+        'SectionStyle',
+        parent=styles['Heading2'],
+        fontSize=13,
+        leading=16,
+        spaceAfter=6
+    )
+
+    body_style = ParagraphStyle(
+        'BodyStyle',
+        parent=styles['BodyText'],
+        fontSize=11,
+        leading=15,
+        alignment=TA_LEFT
+    )
+
+    story = []
 
     for i, item in enumerate(data["variations"], 1):
-        pdf.set_font("Arial", "B", 14)
-        pdf.set_x(LEFT_MARGIN)
-        pdf.multi_cell(MAX_WIDTH, 7, wrap_text_for_pdf(f"Variation {i}"))
-        pdf.ln(8)
 
-        pdf.set_font("Arial", "", 12)
-        pdf.set_x(LEFT_MARGIN)
-        pdf.multi_cell(MAX_WIDTH, 7, wrap_text_for_pdf("Hooks:\n" + "\n".join(f"- {h}" for h in item["hooks"])))
-        pdf.ln(8)
+        story.append(Paragraph(f"Variation {i}", title_style))
+        story.append(Paragraph("Hooks", section_style))
 
-        pdf.set_x(LEFT_MARGIN)
-        pdf.multi_cell(MAX_WIDTH, 7, wrap_text_for_pdf(f"Post:\n{item['post']}"))
-        pdf.ln(8)
+        for hook in item["hooks"]:
+            story.append(Paragraph(f"- {hook}", body_style))
 
-        pdf.set_x(LEFT_MARGIN)
-        pdf.multi_cell(MAX_WIDTH, 7, wrap_text_for_pdf("CTAs:\n" + "\n".join(f"- {c}" for c in item["ctas"])))
+        story.append(Spacer(1, 0.2 * inch))
+        story.append(Paragraph("Post", section_style))
+        story.append(Paragraph(item["post"], body_style))
+        story.append(Spacer(1, 0.2 * inch))
+        story.append(Paragraph("CTAs", section_style))
 
-        pdf.ln(15)  
+        for cta in item["ctas"]:
+            story.append(Paragraph(f"- {cta}", body_style))
+        story.append(Spacer(1, 0.4 * inch))
 
-    pdf_bytes = pdf.output(dest='S')
-    return BytesIO(pdf_bytes)
+    pdf.build(story)
+    buffer.seek(0)
+    return buffer
 
 #Streamlit App
 st.set_page_config(page_title="LinkedIn Post Agent", layout="wide")
