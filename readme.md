@@ -1,33 +1,29 @@
-**AI Job Match Analyzer**
+**LinkedIn Post Agent**
 ==============================
 <p align="center">
-  <img src="https://img.shields.io/badge/LLM-Llama3.1_70B-orange?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/LLM-Llama3.3_70B-orange?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Groq-LPU_Inference-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Python-3.10+-green?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Streamlit-App-red?style=for-the-badge" />
 </p>
 
-A **high-precision NLP + LLM-powered analyzer** that compares a **Job Description** and a **Resume**, extracts skills, computes match %, identifies gaps, and generates **AI-optimized resume improvement suggestions** powered by **Groq’s ultra-fast Llama 3.1 70B**.
+A **LinkedIn content generation tool** that produces **5 variations of posts**, each with attention-grabbing **hooks**, a well-structured **post body**, and strong **CTAs**, powered by **Groq’s ultra-fast llama-3.3-70b-versatile**.
 
 ---
 
 ## 🚀 **Features**
-- **Extracts skills & keywords** (spaCy + custom parsing)
-  
-- Computes:
-  - **Match %**
-  - **Missing Skills**
-  - **Matched Skills**
-  - **Resume Score**
-    
-- Generates:
-  - **3 Resume Bullet Suggestions**
-  - **1 Professional Headline**
-  - **1 Rationale Summary**
-    
-- Modern **Streamlit UI** with color-coded sections & skill badges
+- Generates **5 unique LinkedIn post variations** at once
 
-- **Fully free** (no paid APIs) — uses **Groq free tier**
+- Each variation includes:
+  - **3 Hooks** for attention
+  - **1 Post Body** (100–180 words, storytelling optimized)
+  - **2 CTAs** (Call to Actions)
+
+- Optional **JSON output** for developers
+
+- **Download as TXT or PDF**
+
+- Fully Python + Streamlit — no complex setup
 
 ---
     
@@ -35,66 +31,52 @@ A **high-precision NLP + LLM-powered analyzer** that compares a **Job Descriptio
 | Component | Used For |
 |----------|----------|
 | **Python 3.10+** | Core logic |
-| **spaCy** | NLP skill extraction |
-| **RapidFuzz** | Fuzzy skill matching |
-| **Groq API (Llama 3.1 70B)** | Resume suggestions |
+| **Groq API (llama-3.3-70b-versatile)** | AI content generation |
 | **Streamlit** | Frontend UI |
+| **FPDF** | PDF generation |
 | **Inline CSS + HTML** | Custom styling |
 
 ---
 
 ## 📂 **Project Structure**
 ```
- ai_job_analyzer/
-│── analyzer.py          
-│── model_interface.py   
+linkedin_post_agent/
 │── app.py               
 │── requirements.txt
-│── examples/
-│     └── job_desc.txt
-|     └── resume.txt
 │── README.md
 ```
-
 
 ---
 
 ## 🖥️ **How It Works**
 
-### **1️⃣ Skill Extraction**
-✔ Noun chunks  
-✔ Entities  
-✔ Token-based filtering  
-✔ Normalization + cleaning  
+### **1️⃣ Generate Posts**
+✔ Enter a **Topic**, **Tone**, and **Target Audience**  
+✔ Click **Generate Posts**  
 
 ---
 
-### **2️⃣ Skill Matching (JD → Resume)**
-Uses **RapidFuzz** token-sort ratio to compute:
+### **2️⃣ Post Variations**
+The agent creates 5 variations with:
 
-- Match %
-- Missing skills
-- Matched pairs
-
----
-
-### **3️⃣ AI Suggestion Generation**
-Groq Llama 3.1 70B produces:
-
-- 3 resume bullets (10–15 words)
-- A strong headline
-- A rationale explaining the match score
+- 3 Hooks  
+- 1 Post Body  
+- 2 CTAs  
 
 ---
 
-### **4️⃣ UI Presentation**
-Streamlit displays:
+### **3️⃣ Download Options**
+- TXT file with all variations  
+- PDF file with clean formatting and left-aligned headings  
+- Optional JSON output for advanced use
 
-- Extracted skills  
-- Missing skills as colored badges  
-- Match %  
-- Resume score  
-- AI recommendations  
+---
+
+### **4️⃣ Streamlit UI**
+- Sidebar inputs for topic, tone, and audience  
+- Expandable sections for each variation  
+- Download buttons for TXT/PDF  
+- Optional JSON viewer
 
 ---
 
@@ -103,14 +85,15 @@ Streamlit displays:
 ### **Install Dependencies**
 ```
 pip install -r requirements.txt
-python -m spacy download en_core_web_sm
 ```
+
 ---
 
 ### **Launch the Streamlit App**
 ```
 streamlit run app.py
 ```
+
 ---
 
 ## 🔑 **Setup Groq API Key**
@@ -118,6 +101,7 @@ streamlit run app.py
 
 >[!IMPORTANT]
 >You must set your Groq API key as an environment variable.
+>If you get any model error, you need to update the model version as they get decommissioned
 
 </br>
 Login to your groq dashborad and then create new API key. Copy that key and then set it as an environment variable using:
@@ -137,43 +121,36 @@ echo $env:GROQ_API_KEY
 ```
 ---
 
-## 📝 **Example Inputs**
+## 📝 **Example Input**
+### Topic
+```
+How AI agentic workflows can boost freelancer productivity
+```
+### Tone
+```
+Expert, friendly, storytelling
+```
+### Audience
+```
+Freelancers, creators, LinkedIn users
+```
 
-### Job Description (JD)
-```
-We are seeking a Senior Data Engineer with 5+ years of experience in Python development and data engineering. 
-The candidate should have experience with cloud-based solutions, building scalable data pipelines, 
-working with cross-functional teams, ETL workflows, and ensuring data quality, integrity, and performance. 
-Strong knowledge of distributed systems, automated testing, CI/CD pipelines, and production deployments 
-on cloud platforms (AWS, GCP, or Azure) is required. Familiarity with data applications, documentation 
-of technical specifications and best practices, relational databases, NoSQL databases (MongoDB), 
-REST APIs, microservices, message queues (Kafka), cloud infrastructure, DevOps tools, Kubernetes, Terraform, 
-and other CI/CD tools is strongly preferred.
-```
-
-### Resume
-```
-I am a software engineer with 3 years of experience in Python and SQL. 
-I have built ETL pipelines, used Docker and Kubernetes for containerized deployment, 
-and deployed small-scale data applications on AWS. I am familiar with relational databases, 
-basic CI/CD pipelines, and some cloud infrastructure tools. I have collaborated with small teams 
-on several projects, focusing on data processing and analysis.
-```
 ---
 
 ## ⭐ **Future Improvements**
 
-*   Skill ontology mapping
-*   Support for PDF/Docx uploads
-*   ATS score
-*   Resume rewriting
-*   Multi-language support
+* Multi-language support  
+* AI-powered content scheduling  
+* LinkedIn auto-post integration  
+* Advanced formatting options in PDF  
+* SaaS-ready version  
+
 ---
 
 ## 🤝 **Contributing**
 
-Pull requests are welcome!\
-If you want to extend this into a SaaS product, feel free to reach out.
+Pull requests welcome!\
+If you want to help improve this tool or build a SaaS version, reach out.
 
 ---
 
