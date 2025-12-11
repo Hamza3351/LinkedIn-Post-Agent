@@ -156,7 +156,7 @@ If you want to help improve this tool or build a SaaS version, reach out.
 
 ## 📹 **Demo Video**
 
-Coming soon on YouTube 📺
+Youtube: https://youtu.be/nGFO7KPHJeg?si=NQiXv32_B8drja66
 
 ---
 
